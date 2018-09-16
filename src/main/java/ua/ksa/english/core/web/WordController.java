@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.ksa.english.core.convertor.Convertor;
+import ua.ksa.english.core.convertor.Converter;
 import ua.ksa.english.core.dao.WordDAO;
 import ua.ksa.english.core.dto.WordDTO;
 import ua.ksa.english.core.entity.Word;
@@ -48,7 +48,7 @@ public class WordController {
         return null;
     }
 
-    final Convertor<Word, WordDTO> converter = new Convertor<Word, WordDTO>() {
+    final Converter<Word, WordDTO> converter = new Converter<Word, WordDTO>() {
         @Override
         public Word convert(WordDTO wordDTO) {
             Word word = Word.builder()

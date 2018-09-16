@@ -16,8 +16,8 @@ import java.util.UUID;
 @Getter @Setter
 public abstract class AbstactId {
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "ID")
     protected UUID id;
 }

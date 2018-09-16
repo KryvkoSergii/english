@@ -3,6 +3,7 @@ package ua.ksa.english.core.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ua.ksa.english.core.dto.WordDTO;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import java.io.IOException;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -29,11 +33,24 @@ public class WordControllerTest {
     @Test
     public void create() throws Exception {
         WordDTO request = WordDTO.builder().english("test").translate("тест").build();
-        mockMvc.perform(MockMvcRequestBuilders.post(WordController.URI, json(request))
+        String raw = json(request);
+        log.info("request {}", raw);
+        mockMvc.perform(MockMvcRequestBuilders.post(WordController.URI)
+                .content(raw)
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andDo(h -> log.info("response {}", h.getResponse().getContentAsString()))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("english", request.getEnglish()))
-                .andExpect(model().attribute("translate", request.getTranslate()));
+                .andExpect(jsonPath("$.english").value(request.getEnglish()))
+                .andExpect(jsonPath("$.translate").value(request.getTranslate()))
+                .andExpect(jsonPath("$.translate").value(request.getTranslate()));
+    }
+
+    @Test
+    public void wordDTOSerializationConfigurationTest() throws IOException {
+        WordDTO toSerialize = WordDTO.builder().english("test").translate("тест").build();
+        String json = json(toSerialize);
+        WordDTO deserialized = mapper.readValue(json, WordDTO.class);
+        Assert.assertEquals(toSerialize, deserialized);
     }
 
     @Test
