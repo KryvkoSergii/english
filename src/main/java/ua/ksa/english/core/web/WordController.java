@@ -11,7 +11,11 @@ import ua.ksa.english.core.dto.WordDTO;
 import ua.ksa.english.core.entity.Word;
 
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,25 +34,48 @@ public class WordController {
         return ResponseEntity.ok(converter.inverse(response));
     }
 
-    @PutMapping(params = URI)
-    public ResponseEntity<WordDTO> update(@PathVariable(value = "id") UUID id, @RequestBody WordDTO wordDTO) {
+    @PutMapping(path = URI + "/{id}",
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<WordDTO> update(@PathVariable UUID id, @RequestBody WordDTO wordDTO) {
         log.debug("request_id:{} request:{}", wordDTO);
-        return null;
+        if (Objects.equals(wordDTO.getId(), id))
+            return ResponseEntity.badRequest().build();
+        return Optional.ofNullable(converter.convert(wordDTO))
+                .map(wordDAO::save)
+                .filter(word -> {
+                    log.debug("updated:{}", word);
+                    return true;
+                })
+                .map(converter::inverse)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping(params = URI)
+    @GetMapping(path = URI, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Collection<WordDTO>> getAll() {
         log.debug("request:");
-        return null;
+        Collection<WordDTO> response = StreamSupport.stream(wordDAO.findAll().spliterator(), false)
+                .map(converter::inverse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping(params = URI)
-    public ResponseEntity<WordDTO> delete(@PathVariable(value = "id") UUID id) {
+    @DeleteMapping(path = URI + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<WordDTO> delete(@PathVariable UUID id) {
         log.debug("request_id:{}", id);
-        return null;
+        return wordDAO.findById(id)
+                .map(word -> {
+                    log.debug("persisted:{}", word);
+                    return ResponseEntity.ok(converter.inverse(word));
+                })
+                .orElseGet(() -> {
+                    log.debug("persisted:{}", "not found");
+                    return ResponseEntity.notFound().build();
+                });
     }
 
-    final Converter<Word, WordDTO> converter = new Converter<Word, WordDTO>() {
+    private final Converter<Word, WordDTO> converter = new Converter<Word, WordDTO>() {
         @Override
         public Word convert(WordDTO wordDTO) {
             Word word = Word.builder()

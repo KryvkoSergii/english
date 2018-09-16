@@ -17,7 +17,6 @@ import ua.ksa.english.core.dto.WordDTO;
 
 import java.io.IOException;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,7 +41,7 @@ public class WordControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.english").value(request.getEnglish()))
                 .andExpect(jsonPath("$.translate").value(request.getTranslate()))
-                .andExpect(jsonPath("$.translate").value(request.getTranslate()));
+                .andExpect(jsonPath("$.id").isNotEmpty());
     }
 
     @Test
@@ -58,7 +57,11 @@ public class WordControllerTest {
     }
 
     @Test
-    public void getAll() {
+    public void getAll() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(WordController.URI)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(h -> log.info("response {}", h.getResponse().getContentAsString()))
+                .andExpect(status().isOk());
     }
 
     @Test
