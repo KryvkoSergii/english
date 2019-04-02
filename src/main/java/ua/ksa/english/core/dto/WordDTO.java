@@ -6,22 +6,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.UUID;
 
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WordDTO {
-    private final UUID id;
-    private final String english;
+    private final UUID dictionaryId;
+    private UUID wordId;
+    @NotNull
+    @Size(max = 255, message = "length 1...255")
+    private final String foreign;
+    @NotNull
+    @Size(max = 255, message = "length 1...255")
     private final String translate;
 
     @JsonCreator
-    public WordDTO(@JsonProperty(value = "id",required = false) UUID id,
-                   @JsonProperty("english") String english,
+    public WordDTO(@JsonProperty(value = "dictionaryId") UUID dictionaryId,
+                   @JsonProperty(value = "wordId") UUID wordId,
+                   @JsonProperty("foreign") String foreign,
                    @JsonProperty("translate") String translate) {
-        this.id = id;
-        this.english = english;
+        this.dictionaryId = dictionaryId;
+        this.foreign = foreign;
         this.translate = translate;
+        this.wordId = wordId;
     }
 }

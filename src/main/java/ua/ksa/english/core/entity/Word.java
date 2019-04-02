@@ -1,27 +1,34 @@
 package ua.ksa.english.core.entity;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.UUID;
 
 @Entity
-@Table(name = "URI")
+@Table(name = "WORDS",
+        uniqueConstraints = @UniqueConstraint(name = "UK_WORDS_FOREIGN", columnNames = {"FOREIGN", "TRANSLATE"}))
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
-public class Word extends AbstactId {
-    @Column(name = "ENGLISH_WORD")
-    public String english;
+public class Word {
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "ID")
+    protected UUID wordId;
+    @Column(name = "FOREIGN")
+    protected String foreign;
     @Column(name = "TRANSLATE")
-    public String translate;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "WORDS_GROUPS",
-            joinColumns = {@JoinColumn(name = "WORD_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_WORDS_GROUPS_WORDS_ID"))} ,
-            inverseJoinColumns = {@JoinColumn(name = "GROUP_ID", referencedColumnName = "ID", foreignKey = @ForeignKey(name = "FK_WORDS_GROUPS_GROUPS_ID"))})
-    public Collection<Group> allowedGroups;
+    protected String translate;
 
+    public Word(String foreign, String translate) {
+        this.foreign = foreign;
+        this.translate = translate;
+    }
 }

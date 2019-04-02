@@ -1,0 +1,12 @@
+package ua.ksa.english.core.web;
+
+public enum AccessCode {
+    DICTIONARY_FIND_ALL,
+    DICTIONARY_FIND_BY_UUID,
+    DICTIONARY_CREATE,
+    DICTIONARY_UPDATE,
+    DICTIONARY_DELETE,
+    DICTIONARY_WORDS_GET,
+    DICTIONARY_WORDS_ADD,
+    WORDS_UPDATE;
+}
