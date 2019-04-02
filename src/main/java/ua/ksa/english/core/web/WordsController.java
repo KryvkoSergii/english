@@ -55,4 +55,11 @@ public class WordsController {
         container.setWord(word);
         return ResponseEntity.ok(DtoConverter.containerToWordDTO(containerDAO.save(container)));
     }
+
+    @GetMapping(path = "/",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity findAll(){
+        return null;
+    }
 }
